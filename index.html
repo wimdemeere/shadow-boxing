@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -79,6 +80,24 @@
             <div class="text-center mb-10">
                 <h2 class="text-5xl font-bold text-yellow-400 mb-2">Configure Your Session</h2>
                 <p class="text-zinc-400">Choose your parameters and hit START</p>
+            </div>
+
+            <!-- First-time help section -->
+            <div id="help-section" class="max-w-3xl mx-auto mb-8 bg-zinc-900 border border-zinc-700 rounded-2xl p-5 text-sm">
+                <div class="flex justify-between items-start mb-3">
+                    <h3 class="font-semibold text-yellow-400">Welcome! Here's how it works</h3>
+                    <button onclick="dismissHelp()" 
+                            class="bg-zinc-800 hover:bg-zinc-700 px-4 py-1.5 rounded-2xl text-sm font-medium transition-colors">
+                        Got it
+                    </button>
+                </div>
+                <ul class="text-zinc-300 space-y-1.5 text-sm">
+                    <li>• Choose your <strong>round length</strong>, <strong>rest time</strong>, and number of rounds</li>
+                    <li>• Pick a mode (<strong>Boxing, Kickboxing, Muay Thai, or MMA</strong>)</li>
+                    <li>• Use <strong>Single</strong> for one technique at a time, or <strong>Combinations</strong> for sequences</li>
+                    <li>• The app will <strong>speak</strong> techniques out loud at your chosen tempo</li>
+                    <li>• Your phone screen will stay on during the workout</li>
+                </ul>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
 
@@ -342,6 +361,12 @@
             $("combo-val").textContent        = $("combo-length").value;
             $("tempo-val").textContent        = $("tempo").value;
             saveSettings();
+        }
+
+        function dismissHelp() {
+            const help = $("help-section");
+            if (help) help.style.display = "none";
+            localStorage.setItem('shadowBoxingHelpDismissed', 'true');
         }
 
         function setTechniqueMode(mode) {
@@ -682,6 +707,12 @@
         window.onload = () => {
             loadSettings();
             updateSliders();
+
+            // Hide help section if user already dismissed it
+            if (localStorage.getItem('shadowBoxingHelpDismissed') === 'true') {
+                const help = $("help-section");
+                if (help) help.style.display = "none";
+            }
             document.querySelectorAll("input[type=range]").forEach(s => s.addEventListener("input", updateSliders));
 
             const container = $("mode-buttons");
