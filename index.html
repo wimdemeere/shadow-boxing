@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -209,11 +208,98 @@
 
         // ── Data ──────────────────────────────────────────────────────────────
         const MODES = ["Boxing", "Kickboxing", "Muay Thai", "MMA"];
+
         const TECHNIQUES = {
-            "Boxing": ["Jab", "Cross", "Left Hook", "Right Hook", "Left Uppercut", "Right Uppercut", "Left Overhand", "Right Overhand", "Left Body Hook", "Right Body Hook", "Body Jab", "Body Cross", "Slip Left", "Slip Right", "Left Weave", "Right Weave", "Left Pivot", "Right Pivot", "Clinch", "Check Hook", "Left Feint", "Right Feint"],
-            "Kickboxing": ["Jab", "Cross", "Left Hook", "Right Hook", "Left Uppercut", "Right Uppercut", "Left Front Kick", "Right Front Kick", "Left Roundhouse", "Right Roundhouse", "Left Side Kick", "Right Side Kick", "Left Teep", "Right Teep", "Left Low Kick", "Right Low Kick", "Left Spinning Heel Kick", "Right Spinning Heel Kick", "Left Spinning Back Kick", "Right Spinning Back Kick", "Left Feint Punch", "Right Feint Punch", "Left Feint Kick", "Right Feint Kick", "Left Block", "Right Block", "Left Switch Kick", "Right Switch Kick", "Left Backfist", "Right Backfist", "Left Spinning Back Fist", "Right Spinning Back Fist", "Left Parry", "Right Parry"],
-            "Muay Thai": ["Jab", "Cross", "Left Hook", "Right Hook", "Left Uppercut", "Right Uppercut", "Left Teep", "Right Teep", "Left Roundhouse Kick", "Right Roundhouse Kick", "Left Low Kick", "Right Low Kick", "Left Knee", "Right Knee", "Left Elbow", "Right Elbow", "Left Switch Kick", "Right Switch Kick", "Left Spinning Heel Kick", "Right Spinning Heel Kick", "Left Spinning Back Kick", "Right Spinning Back Kick", "Left Jump Knee", "Right Jump Knee", "Left Switch Jump Knee", "Right Switch Jump Knee", "Left Feint Punch", "Right Feint Punch", "Left Feint Kick", "Right Feint Kick", "Left Block", "Right Block", "Left Backfist", "Right Backfist", "Left Spinning Back Fist", "Right Spinning Back Fist", "Left Horizontal Elbow", "Right Horizontal Elbow", "Left Rising Elbow", "Right Rising Elbow", "Left Spinning Back Elbow", "Right Spinning Back Elbow", "Left Spear Elbow", "Right Spear Elbow", "Left Parry", "Right Parry"],
-            "MMA": ["Jab", "Cross", "Left Hook", "Right Hook", "Left Uppercut", "Right Uppercut", "Left Front Kick", "Right Front Kick", "Left Roundhouse", "Right Roundhouse", "Left Side Kick", "Right Side Kick", "Left Knee Strike", "Right Knee Strike", "Left Elbow", "Right Elbow", "Left Sprawl", "Right Sprawl", "Level Change", "Left Takedown Shot", "Right Takedown Shot", "Left Flying Knee", "Right Flying Knee", "Left Ground Strike", "Right Ground Strike", "Left Spinning Heel Kick", "Right Spinning Heel Kick", "Left Spinning Back Kick", "Right Spinning Back Kick", "Left Jump Knee", "Right Jump Knee", "Left Switch Jump Knee", "Right Switch Jump Knee", "Left Feint Punch", "Right Feint Punch", "Left Feint Kick", "Right Feint Kick", "Left Block", "Right Block", "Left Switch Kick", "Right Switch Kick", "Left Backfist", "Right Backfist", "Left Spinning Back Fist", "Right Spinning Back Fist", "Left Horizontal Elbow", "Right Horizontal Elbow", "Left Rising Elbow", "Right Rising Elbow", "Left Spinning Back Elbow", "Right Spinning Back Elbow", "Left Spear Elbow", "Right Spear Elbow", "Left Parry", "Right Parry", "Left Feint Takedown", "Right Feint Takedown", "Left Hammer Fist", "Right Hammer Fist", "Left Oblique Kick", "Right Oblique Kick"]
+            "Boxing": [
+                "Jab", "Cross",
+                "Left Hook", "Right Hook",
+                "Left Uppercut", "Right Uppercut",
+                "Left Overhand", "Right Overhand",
+                "Left Body Hook", "Right Body Hook",
+                "Body Jab", "Body Cross",
+                "Slip Left", "Slip Right",
+                "Left Weave", "Right Weave",
+                "Left Pivot", "Right Pivot",
+                "Clinch", "Check Hook",
+                "Left Feint", "Right Feint"
+            ],
+            "Kickboxing": [
+                "Jab", "Cross",
+                "Left Hook", "Right Hook",
+                "Left Uppercut", "Right Uppercut",
+                "Left Front Kick", "Right Front Kick",
+                "Left Roundhouse", "Right Roundhouse",
+                "Left Side Kick", "Right Side Kick",
+                "Left Teep", "Right Teep",
+                "Left Low Kick", "Right Low Kick",
+                "Left Spinning Heel Kick", "Right Spinning Heel Kick",
+                "Left Spinning Back Kick", "Right Spinning Back Kick",
+                "Left Feint Punch", "Right Feint Punch",
+                "Left Feint Kick", "Right Feint Kick",
+                "Left Block", "Right Block",
+                "Left Switch Kick", "Right Switch Kick",
+                "Left Backfist", "Right Backfist",
+                "Left Spinning Back Fist", "Right Spinning Back Fist",
+                "Left Parry", "Right Parry"
+            ],
+            "Muay Thai": [
+                "Jab", "Cross",
+                "Left Hook", "Right Hook",
+                "Left Uppercut", "Right Uppercut",
+                "Left Teep", "Right Teep",
+                "Left Roundhouse Kick", "Right Roundhouse Kick",
+                "Left Low Kick", "Right Low Kick",
+                "Left Knee", "Right Knee",
+                "Left Elbow", "Right Elbow",
+                "Left Switch Kick", "Right Switch Kick",
+                "Left Spinning Heel Kick", "Right Spinning Heel Kick",
+                "Left Spinning Back Kick", "Right Spinning Back Kick",
+                "Left Jump Knee", "Right Jump Knee",
+                "Left Switch Jump Knee", "Right Switch Jump Knee",
+                "Left Feint Punch", "Right Feint Punch",
+                "Left Feint Kick", "Right Feint Kick",
+                "Left Block", "Right Block",
+                "Left Backfist", "Right Backfist",
+                "Left Spinning Back Fist", "Right Spinning Back Fist",
+                "Left Horizontal Elbow", "Right Horizontal Elbow",
+                "Left Rising Elbow", "Right Rising Elbow",
+                "Left Spinning Back Elbow", "Right Spinning Back Elbow",
+                "Left Spear Elbow", "Right Spear Elbow",
+                "Left Parry", "Right Parry"
+            ],
+            "MMA": [
+                "Jab", "Cross",
+                "Left Hook", "Right Hook",
+                "Left Uppercut", "Right Uppercut",
+                "Left Front Kick", "Right Front Kick",
+                "Left Roundhouse", "Right Roundhouse",
+                "Left Side Kick", "Right Side Kick",
+                "Left Knee Strike", "Right Knee Strike",
+                "Left Elbow", "Right Elbow",
+                "Left Sprawl", "Right Sprawl",
+                "Level Change",
+                "Left Takedown Shot", "Right Takedown Shot",
+                "Left Flying Knee", "Right Flying Knee",
+                "Left Ground Strike", "Right Ground Strike",
+                "Left Spinning Heel Kick", "Right Spinning Heel Kick",
+                "Left Spinning Back Kick", "Right Spinning Back Kick",
+                "Left Jump Knee", "Right Jump Knee",
+                "Left Switch Jump Knee", "Right Switch Jump Knee",
+                "Left Feint Punch", "Right Feint Punch",
+                "Left Feint Kick", "Right Feint Kick",
+                "Left Block", "Right Block",
+                "Left Switch Kick", "Right Switch Kick",
+                "Left Backfist", "Right Backfist",
+                "Left Spinning Back Fist", "Right Spinning Back Fist",
+                "Left Horizontal Elbow", "Right Horizontal Elbow",
+                "Left Rising Elbow", "Right Rising Elbow",
+                "Left Spinning Back Elbow", "Right Spinning Back Elbow",
+                "Left Spear Elbow", "Right Spear Elbow",
+                "Left Parry", "Right Parry",
+                "Left Feint Takedown", "Right Feint Takedown",
+                "Left Hammer Fist", "Right Hammer Fist",
+                "Left Oblique Kick", "Right Oblique Kick"
+            ]
         };
 
         // ── Persistence ───────────────────────────────────────────────────────
