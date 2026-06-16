@@ -20,6 +20,9 @@
     <meta name="twitter:title" content="Shadow Boxing Randomizer">
     <meta name="twitter:description" content="Free shadow boxing randomizer with voice coaching by Wim Demeere.">
 
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <style>
@@ -56,7 +59,8 @@
             <span class="px-2 py-0.5 text-xs font-mono bg-zinc-900 text-lime-400 rounded-full border border-lime-500/30 shrink-0">v1.5.0</span>
         </div>
         <div class="flex items-center gap-2 flex-wrap w-full sm:w-auto">
-            <a href="https://wimsblog.com" target="_blank" class="text-zinc-400 hover:text-white transition-colors text-xs sm:text-sm font-medium whitespace-nowrap">
+            <a href="https://wimsblog.com" target="_blank"
+               class="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-2xl text-sm font-medium flex items-center gap-2 whitespace-nowrap transition-colors">
                 by Wim Demeere
             </a>
             <button onclick="toggleWorkout()" id="main-btn"
@@ -205,11 +209,11 @@
 
         // ── Data ──────────────────────────────────────────────────────────────
         const MODES = ["Boxing", "Kickboxing", "Muay Thai", "MMA"];
-        const TECHNIQUES = { /* ... same technique data as before ... */ 
+        const TECHNIQUES = {
             "Boxing": ["Jab", "Cross", "Left Hook", "Right Hook", "Left Uppercut", "Right Uppercut", "Left Overhand", "Right Overhand", "Left Body Hook", "Right Body Hook", "Body Jab", "Body Cross", "Slip Left", "Slip Right", "Left Weave", "Right Weave", "Left Pivot", "Right Pivot", "Clinch", "Check Hook", "Left Feint", "Right Feint"],
-            "Kickboxing": ["Jab", "Cross", "Left Hook", "Right Hook", "Left Uppercut", "Right Uppercut", "Left Front Kick", "Right Front Kick", "Left Roundhouse", "Right Roundhouse", "Left Side Kick", "Right Side Kick", "Left Teep", "Right Teep", "Left Low Kick", "Right Low Kick", "Left Back Kick", "Right Back Kick", "Left Spinning Heel Kick", "Right Spinning Heel Kick", "Left Feint Punch", "Right Feint Punch", "Left Feint Kick", "Right Feint Kick", "Left Block", "Right Block", "Left Switch Kick", "Right Switch Kick", "Left Backfist", "Right Backfist", "Left Spinning Back Fist", "Right Spinning Back Fist", "Left Parry", "Right Parry"],
-            "Muay Thai": ["Jab", "Cross", "Left Hook", "Right Hook", "Left Uppercut", "Right Uppercut", "Left Teep", "Right Teep", "Left Roundhouse Kick", "Right Roundhouse Kick", "Left Low Kick", "Right Low Kick", "Left Knee", "Right Knee", "Left Elbow", "Right Elbow", "Left Switch Kick", "Right Switch Kick", "Left Push Kick", "Right Push Kick", "Left Spinning Heel Kick", "Right Spinning Heel Kick", "Left Jump Knee", "Right Jump Knee", "Left Switch Jump Knee", "Right Switch Jump Knee", "Left Feint Punch", "Right Feint Punch", "Left Feint Kick", "Right Feint Kick", "Left Block", "Right Block", "Left Backfist", "Right Backfist", "Left Spinning Back Fist", "Right Spinning Back Fist", "Left Horizontal Elbow", "Right Horizontal Elbow", "Left Rising Elbow", "Right Rising Elbow", "Left Spinning Back Elbow", "Right Spinning Back Elbow", "Left Spear Elbow", "Right Spear Elbow", "Left Parry", "Right Parry"],
-            "MMA": ["Jab", "Cross", "Left Hook", "Right Hook", "Left Uppercut", "Right Uppercut", "Left Front Kick", "Right Front Kick", "Left Roundhouse", "Right Roundhouse", "Left Knee Strike", "Right Knee Strike", "Left Elbow", "Right Elbow", "Left Sprawl", "Right Sprawl", "Level Change", "Left Takedown Shot", "Right Takedown Shot", "Left Flying Knee", "Right Flying Knee", "Left Ground Strike", "Right Ground Strike", "Left Spinning Heel Kick", "Right Spinning Heel Kick", "Left Jump Knee", "Right Jump Knee", "Left Switch Jump Knee", "Right Switch Jump Knee", "Left Feint Punch", "Right Feint Punch", "Left Feint Kick", "Right Feint Kick", "Left Block", "Right Block", "Left Switch Kick", "Right Switch Kick", "Left Backfist", "Right Backfist", "Left Spinning Back Fist", "Right Spinning Back Fist", "Left Horizontal Elbow", "Right Horizontal Elbow", "Left Rising Elbow", "Right Rising Elbow", "Left Spinning Back Elbow", "Right Spinning Back Elbow", "Left Spear Elbow", "Right Spear Elbow", "Left Parry", "Right Parry", "Left Feint Takedown", "Right Feint Takedown", "Left Hammer Fist", "Right Hammer Fist"]
+            "Kickboxing": ["Jab", "Cross", "Left Hook", "Right Hook", "Left Uppercut", "Right Uppercut", "Left Front Kick", "Right Front Kick", "Left Roundhouse", "Right Roundhouse", "Left Side Kick", "Right Side Kick", "Left Teep", "Right Teep", "Left Low Kick", "Right Low Kick", "Left Spinning Heel Kick", "Right Spinning Heel Kick", "Left Spinning Back Kick", "Right Spinning Back Kick", "Left Feint Punch", "Right Feint Punch", "Left Feint Kick", "Right Feint Kick", "Left Block", "Right Block", "Left Switch Kick", "Right Switch Kick", "Left Backfist", "Right Backfist", "Left Spinning Back Fist", "Right Spinning Back Fist", "Left Parry", "Right Parry"],
+            "Muay Thai": ["Jab", "Cross", "Left Hook", "Right Hook", "Left Uppercut", "Right Uppercut", "Left Teep", "Right Teep", "Left Roundhouse Kick", "Right Roundhouse Kick", "Left Low Kick", "Right Low Kick", "Left Knee", "Right Knee", "Left Elbow", "Right Elbow", "Left Switch Kick", "Right Switch Kick", "Left Spinning Heel Kick", "Right Spinning Heel Kick", "Left Spinning Back Kick", "Right Spinning Back Kick", "Left Jump Knee", "Right Jump Knee", "Left Switch Jump Knee", "Right Switch Jump Knee", "Left Feint Punch", "Right Feint Punch", "Left Feint Kick", "Right Feint Kick", "Left Block", "Right Block", "Left Backfist", "Right Backfist", "Left Spinning Back Fist", "Right Spinning Back Fist", "Left Horizontal Elbow", "Right Horizontal Elbow", "Left Rising Elbow", "Right Rising Elbow", "Left Spinning Back Elbow", "Right Spinning Back Elbow", "Left Spear Elbow", "Right Spear Elbow", "Left Parry", "Right Parry"],
+            "MMA": ["Jab", "Cross", "Left Hook", "Right Hook", "Left Uppercut", "Right Uppercut", "Left Front Kick", "Right Front Kick", "Left Roundhouse", "Right Roundhouse", "Left Side Kick", "Right Side Kick", "Left Knee Strike", "Right Knee Strike", "Left Elbow", "Right Elbow", "Left Sprawl", "Right Sprawl", "Level Change", "Left Takedown Shot", "Right Takedown Shot", "Left Flying Knee", "Right Flying Knee", "Left Ground Strike", "Right Ground Strike", "Left Spinning Heel Kick", "Right Spinning Heel Kick", "Left Spinning Back Kick", "Right Spinning Back Kick", "Left Jump Knee", "Right Jump Knee", "Left Switch Jump Knee", "Right Switch Jump Knee", "Left Feint Punch", "Right Feint Punch", "Left Feint Kick", "Right Feint Kick", "Left Block", "Right Block", "Left Switch Kick", "Right Switch Kick", "Left Backfist", "Right Backfist", "Left Spinning Back Fist", "Right Spinning Back Fist", "Left Horizontal Elbow", "Right Horizontal Elbow", "Left Rising Elbow", "Right Rising Elbow", "Left Spinning Back Elbow", "Right Spinning Back Elbow", "Left Spear Elbow", "Right Spear Elbow", "Left Parry", "Right Parry", "Left Feint Takedown", "Right Feint Takedown", "Left Hammer Fist", "Right Hammer Fist", "Left Oblique Kick", "Right Oblique Kick"]
         };
 
         // ── Persistence ───────────────────────────────────────────────────────
@@ -345,7 +349,7 @@
                     updateWakeStatus(false);
                 });
             } catch (err) {
-                console.warn('Wake Lock failed:', err.name);
+                console.warn('Wake Lock request failed:', err.name, err.message);
                 updateWakeStatus(false);
             }
         }
@@ -608,10 +612,10 @@
 
             // Visibility handling for wake lock
             document.addEventListener('visibilitychange', async () => {
-                if (document.visibilityState === 'visible' && isWorkoutRunning && !isPaused && !wakeLock) {
+                if (document.visibilityState === 'visible' && isWorkoutRunning && !isPaused) {
                     await requestWakeLock();
                 }
-                if (document.visibilityState === 'hidden') {
+                if (document.visibilityState === 'hidden' && wakeLock) {
                     await releaseWakeLock();
                 }
             });
