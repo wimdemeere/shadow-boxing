@@ -47,6 +47,8 @@ Created by **Wim Demeere**
 
 Support the project: [Donate via PayPal](https://www.paypal.com/donate/?hosted_button_id=SM7Q3T8KM6DN6)
 
+This project is licensed under the MIT License.
+
 ---
 
 *Feel free to use this tool for your training. Feedback and suggestions are welcome.*
