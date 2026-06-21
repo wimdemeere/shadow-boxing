@@ -141,9 +141,44 @@
                         <div class="text-right text-xl font-mono" id="combo-val">4</div>
                     </div>
                     <div>
-                        <label class="block text-sm text-zinc-400 mb-2">CALL TEMPO (seconds)</label>
-                        <input type="range" id="tempo" min="1" max="180" value="4" class="w-full accent-yellow-400">
-                        <div class="text-right text-xl font-mono" id="tempo-val">4</div>
+                        <label class="block text-sm text-zinc-400 mb-3">SELECT CALL TEMPO</label>
+
+                        <!-- Fixed Tempo -->
+                        <div id="fixed-tempo-option" onclick="selectTempoMode('fixed')"
+                             class="mb-4 p-4 rounded-2xl border-2 border-yellow-400 bg-zinc-800 cursor-pointer transition-all">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-medium">Fixed tempo</span>
+                                <span><span id="fixed-tempo-number" class="text-xl font-mono">4</span> <span class="text-xs text-zinc-500">seconds</span></span>
+                            </div>
+                            <input type="range" id="fixed-tempo" min="1" max="180" value="4" step="1"
+                                   class="w-full accent-yellow-400" oninput="updateTempoValues()">
+                        </div>
+
+                        <!-- Variable Tempo Range -->
+                        <div id="variable-tempo-option" onclick="selectTempoMode('variable')"
+                             class="p-4 rounded-2xl border-2 border-zinc-700 bg-zinc-800 cursor-pointer transition-all">
+                            <div class="mb-3">
+                                <span class="font-medium">Variable tempo range</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <div class="flex justify-between text-xs text-zinc-400 mb-1">
+                                        <span>Min</span>
+                                        <span id="variable-min-val">2</span> <span class="text-xs text-zinc-500">(seconds)</span>
+                                    </div>
+                                    <input type="range" id="variable-min" min="1" max="179" value="2" step="1"
+                                           class="w-full accent-yellow-400" oninput="updateTempoValues()">
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs text-zinc-400 mb-1">
+                                        <span>Max</span>
+                                        <span id="variable-max-val">8</span> <span class="text-xs text-zinc-500">(seconds)</span>
+                                    </div>
+                                    <input type="range" id="variable-max" min="2" max="180" value="8" step="1"
+                                           class="w-full accent-yellow-400" oninput="updateTempoValues()">
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -224,6 +259,7 @@
         let timerInterval = null, callTimeout = null, callCount = 0, currentRound = 1;
         let roundTimerData = null;
         let wakeLock = null;
+        let tempoMode = null; // 'fixed' or 'variable'
 
         // ── Data ──────────────────────────────────────────────────────────────
         const MODES = ["Boxing", "Kickboxing", "Muay Thai", "MMA"];
@@ -329,8 +365,7 @@
                 numRounds: +$("num-rounds").value,
                 currentMode,
                 isComboMode,
-                maxComboLength: +$("combo-length").value,
-                tempo: +$("tempo").value
+                maxComboLength: +$("combo-length").value
             };
             localStorage.setItem('shadowBoxingSettings', JSON.stringify(settings));
         }
@@ -344,7 +379,7 @@
                 $("rest-time").value = s.restTime || 60;
                 $("num-rounds").value = s.numRounds || 8;
                 $("combo-length").value = s.maxComboLength || 4;
-                $("tempo").value = s.tempo || 4;
+                // Old tempo value ignored - new dual tempo system resets every session
                 currentMode = s.currentMode || "MMA";
                 isComboMode = s.isComboMode !== undefined ? s.isComboMode : true;
                 setMode(currentMode);
@@ -359,7 +394,9 @@
             $("rest-val").textContent         = mmss(+$("rest-time").value);
             $("rounds-val").textContent       = $("num-rounds").value;
             $("combo-val").textContent        = $("combo-length").value;
-            $("tempo-val").textContent        = $("tempo").value;
+
+            // Update new tempo UI
+            updateTempoValues();
             saveSettings();
         }
 
@@ -367,6 +404,37 @@
             const help = $("help-section");
             if (help) help.style.display = "none";
             localStorage.setItem('shadowBoxingHelpDismissed', 'true');
+        }
+
+        // ── Tempo Selection ───────────────────────────────────────────────────
+        function selectTempoMode(mode) {
+            tempoMode = mode;
+
+            const fixedOption = $("fixed-tempo-option");
+            const variableOption = $("variable-tempo-option");
+
+            if (mode === 'fixed') {
+                fixedOption.classList.remove('border-zinc-700');
+                fixedOption.classList.add('border-yellow-400', 'bg-zinc-700');
+                variableOption.classList.remove('border-yellow-400', 'bg-zinc-700');
+                variableOption.classList.add('border-zinc-700');
+            } else {
+                variableOption.classList.remove('border-zinc-700');
+                variableOption.classList.add('border-yellow-400', 'bg-zinc-700');
+                fixedOption.classList.remove('border-yellow-400', 'bg-zinc-700');
+                fixedOption.classList.add('border-zinc-700');
+            }
+        }
+
+        function updateTempoValues() {
+            // Update displayed values for both tempo options
+            const fixedNumber = $("fixed-tempo-number");
+            if (fixedNumber) fixedNumber.textContent = $("fixed-tempo").value;
+
+            const minVal = $("variable-min-val");
+            const maxVal = $("variable-max-val");
+            if (minVal) minVal.textContent = $("variable-min").value;
+            if (maxVal) maxVal.textContent = $("variable-max").value;
         }
 
         function setTechniqueMode(mode) {
@@ -532,9 +600,19 @@
 
             speak(spokenText, () => {
                 if (!isWorkoutRunning || isPaused || isResting) return;
+
+                let nextDelay;
+                if (tempoMode === 'variable' && window.variableMinTempo && window.variableMaxTempo) {
+                    const min = window.variableMinTempo;
+                    const max = window.variableMaxTempo;
+                    nextDelay = Math.floor(Math.random() * (max - min + 1)) + min;
+                } else {
+                    nextDelay = tempo;
+                }
+
                 callTimeout = setTimeout(() => {
                     if (isWorkoutRunning && !isPaused && !isResting) issueCall();
-                }, tempo * 1000);
+                }, nextDelay * 1000);
             });
         }
 
@@ -604,11 +682,24 @@
         }
 
         function startWorkout() {
+            if (!tempoMode) {
+                alert("Please select either Fixed tempo or Variable tempo range before starting.");
+                return;
+            }
+
             roundLength = +$("round-length").value;
             restTime = +$("rest-time").value;
             numRounds = +$("num-rounds").value;
             maxComboLength = +$("combo-length").value;
-            tempo = +$("tempo").value;
+
+            // Set tempo values based on selection
+            if (tempoMode === 'fixed') {
+                tempo = +$("fixed-tempo").value;
+            } else {
+                // Variable tempo - we'll pick randomly later
+                window.variableMinTempo = +$("variable-min").value;
+                window.variableMaxTempo = +$("variable-max").value;
+            }
 
             $("settings-screen").classList.add("hidden");
             $("main-header").classList.add("hidden");
@@ -623,7 +714,38 @@
 
             window.addEventListener('resize', fitText);
             requestWakeLock();
-            runRound();
+
+            // Start with pre-workout countdown
+            startPreWorkoutCountdown();
+        }
+
+        function startPreWorkoutCountdown() {
+            const display = $("technique-display");
+            display.innerHTML = "GET READY";
+            fitText();
+
+            speak("Get ready");
+
+            // 5-second countdown: Get ready → three → two → begin
+            setTimeout(() => {
+                if (!isWorkoutRunning) return;
+                display.innerHTML = "3";
+                fitText();
+                speak("three");
+            }, 1500);
+
+            setTimeout(() => {
+                if (!isWorkoutRunning) return;
+                display.innerHTML = "2";
+                fitText();
+                speak("two");
+            }, 3000);
+
+            setTimeout(() => {
+                if (!isWorkoutRunning) return;
+                display.innerHTML = "";
+                runRound();
+            }, 5000);
         }
 
         function toggleWorkout() {
