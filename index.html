@@ -263,6 +263,15 @@
         let variableMinTempo = 2;
         let variableMaxTempo = 8;
 
+        // SpeechSynthesis voice cache (for stability)
+        let cachedVoices = [];
+        if ('speechSynthesis' in window) {
+            cachedVoices = speechSynthesis.getVoices();
+            speechSynthesis.onvoiceschanged = () => {
+                cachedVoices = speechSynthesis.getVoices();
+            };
+        }
+
         // ── Data ──────────────────────────────────────────────────────────────
         const MODES = ["Boxing", "Kickboxing", "Muay Thai", "MMA"];
 
@@ -505,19 +514,39 @@
         // ── Speech ────────────────────────────────────────────────────────────
         function speak(text, onEnd) {
             if (!('speechSynthesis' in window)) { if (onEnd) onEnd(); return; }
+
             speechSynthesis.cancel();
+
             setTimeout(() => {
                 const u = new SpeechSynthesisUtterance(text);
                 u.rate   = isComboMode ? 1.04 : 1.38;
                 u.pitch  = 1.13;
                 u.volume = 0.96;
-                const preferred = speechSynthesis.getVoices().find(v =>
+
+                // Use cached voices (fixes race condition on first load)
+                const preferred = cachedVoices.find(v =>
                     v.name.includes("Mark") || v.name.includes("David") || v.name.includes("Guy") ||
                     (v.lang.startsWith("en-US") && v.name.toLowerCase().includes("male"))
                 );
                 if (preferred) u.voice = preferred;
-                if (onEnd) u.onend = onEnd;
+
+                // Reliability: call onEnd on both success and error
+                const safeOnEnd = () => {
+                    if (onEnd) onEnd();
+                };
+                u.onend = safeOnEnd;
+                u.onerror = safeOnEnd;
+
                 speechSynthesis.speak(u);
+
+                // Watchdog: if onend never fires, force next call after timeout
+                const watchdogDelay = (tempo || 4) * 1000 + 2500;
+                setTimeout(() => {
+                    // Only force if we're still in a workout and not paused/resting
+                    if (isWorkoutRunning && !isPaused && !isResting) {
+                        safeOnEnd();
+                    }
+                }, watchdogDelay);
             }, 100);
         }
 
@@ -865,6 +894,11 @@
 
         // ── Init ──────────────────────────────────────────────────────────────
         window.onload = () => {
+            // Register service worker for PWA (minimal shell caching)
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('sw.js').catch(() => {});
+            }
+
             loadSettings();
             updateSliders();
 
