@@ -538,15 +538,6 @@
                 u.onerror = safeOnEnd;
 
                 speechSynthesis.speak(u);
-
-                // Watchdog: if onend never fires, force next call after timeout
-                const watchdogDelay = (tempo || 4) * 1000 + 2500;
-                setTimeout(() => {
-                    // Only force if we're still in a workout and not paused/resting
-                    if (isWorkoutRunning && !isPaused && !isResting) {
-                        safeOnEnd();
-                    }
-                }, watchdogDelay);
             }, 100);
         }
 
@@ -654,6 +645,7 @@
         // ── Workout Logic ─────────────────────────────────────────────────────
         function issueCall() {
             if (!isWorkoutRunning || isPaused || isResting) return;
+            clearTimeout(callTimeout); // prevent overlapping calls
             const list = TECHNIQUES[currentMode];
             let callText, spokenText;
 
@@ -670,15 +662,17 @@
             $("calls-info").textContent = ++callCount;
             triggerNewCallAnimation();
 
+            // Calculate nextDelay for this call
+            let nextDelay;
+            if (tempoMode === 'variable' && variableMinTempo && variableMaxTempo) {
+                nextDelay = Math.floor(Math.random() * (variableMaxTempo - variableMinTempo + 1)) + variableMinTempo;
+            } else {
+                nextDelay = tempo;
+            }
+
+            // Speak first, then schedule next call after speech finishes (correct semantics)
             speak(spokenText, () => {
                 if (!isWorkoutRunning || isPaused || isResting) return;
-
-                let nextDelay;
-                if (tempoMode === 'variable' && variableMinTempo && variableMaxTempo) {
-                    nextDelay = Math.floor(Math.random() * (variableMaxTempo - variableMinTempo + 1)) + variableMinTempo;
-                } else {
-                    nextDelay = tempo;
-                }
 
                 callTimeout = setTimeout(() => {
                     if (isWorkoutRunning && !isPaused && !isResting) issueCall();
@@ -770,6 +764,11 @@
                 // Variable tempo - we'll pick randomly later
                 variableMinTempo = +$("variable-min").value;
                 variableMaxTempo = +$("variable-max").value;
+
+                // Safety: ensure min < max
+                if (variableMinTempo >= variableMaxTempo) {
+                    variableMaxTempo = variableMinTempo + 1;
+                }
             }
 
             $("settings-screen").classList.add("hidden");
@@ -797,7 +796,8 @@
 
             speak("Get ready");
 
-            // 5-second countdown: Get ready → three → two → begin
+            // 5-second countdown.
+            // "Begin" is spoken first. Only after it finishes speaking does the first technique appear and get called.
             setTimeout(() => {
                 if (!isWorkoutRunning) return;
                 display.innerHTML = "3";
@@ -815,7 +815,10 @@
             setTimeout(() => {
                 if (!isWorkoutRunning) return;
                 display.innerHTML = "";
-                runRound();
+                speak("Begin", () => {
+                    if (!isWorkoutRunning) return;
+                    runRound();
+                });
             }, 5000);
         }
 
