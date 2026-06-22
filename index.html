@@ -260,6 +260,8 @@
         let roundTimerData = null;
         let wakeLock = null;
         let tempoMode = null; // 'fixed' or 'variable'
+        let variableMinTempo = 2;
+        let variableMaxTempo = 8;
 
         // ── Data ──────────────────────────────────────────────────────────────
         const MODES = ["Boxing", "Kickboxing", "Muay Thai", "MMA"];
@@ -398,6 +400,10 @@
                     if (s.variableMin) $("variable-min").value = s.variableMin;
                     if (s.variableMax) $("variable-max").value = s.variableMax;
 
+                    // Restore state variables
+                    if (s.variableMin) variableMinTempo = s.variableMin;
+                    if (s.variableMax) variableMaxTempo = s.variableMax;
+
                     // Apply visual selection
                     selectTempoMode(s.tempoMode);
                 }
@@ -421,6 +427,18 @@
             const help = $("help-section");
             if (help) help.style.display = "none";
             localStorage.setItem('shadowBoxingHelpDismissed', 'true');
+        }
+
+        // ── Timer Management (for stability) ──────────────────────────────────
+        function clearAllTimers() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            if (callTimeout) {
+                clearTimeout(callTimeout);
+                callTimeout = null;
+            }
         }
 
         // ── Tempo Selection ───────────────────────────────────────────────────
@@ -452,6 +470,14 @@
             const maxVal = $("variable-max-val");
             if (minVal) minVal.textContent = $("variable-min").value;
             if (maxVal) maxVal.textContent = $("variable-max").value;
+
+            // Stability: Prevent invalid state (Min >= Max)
+            const minSlider = $("variable-min");
+            const maxSlider = $("variable-max");
+            if (minSlider && maxSlider && parseInt(minSlider.value) >= parseInt(maxSlider.value)) {
+                maxSlider.value = parseInt(minSlider.value) + 1;
+                if (maxVal) maxVal.textContent = maxSlider.value;
+            }
         }
 
         function setTechniqueMode(mode) {
@@ -619,10 +645,8 @@
                 if (!isWorkoutRunning || isPaused || isResting) return;
 
                 let nextDelay;
-                if (tempoMode === 'variable' && window.variableMinTempo && window.variableMaxTempo) {
-                    const min = window.variableMinTempo;
-                    const max = window.variableMaxTempo;
-                    nextDelay = Math.floor(Math.random() * (max - min + 1)) + min;
+                if (tempoMode === 'variable' && variableMinTempo && variableMaxTempo) {
+                    nextDelay = Math.floor(Math.random() * (variableMaxTempo - variableMinTempo + 1)) + variableMinTempo;
                 } else {
                     nextDelay = tempo;
                 }
@@ -693,6 +717,7 @@
         function endWorkout() {
             isWorkoutRunning = false;
             releaseWakeLock();
+            clearAllTimers();
             $("technique-display").innerHTML = 'Workout Complete!';
             fitText();
             $("main-btn").innerHTML = `<i class="fa-solid fa-play"></i> START`;
@@ -714,8 +739,8 @@
                 tempo = +$("fixed-tempo").value;
             } else {
                 // Variable tempo - we'll pick randomly later
-                window.variableMinTempo = +$("variable-min").value;
-                window.variableMaxTempo = +$("variable-max").value;
+                variableMinTempo = +$("variable-min").value;
+                variableMaxTempo = +$("variable-max").value;
             }
 
             $("settings-screen").classList.add("hidden");
@@ -783,10 +808,7 @@
 
             if (isPaused) {
                 speechSynthesis.cancel();
-                clearTimeout(callTimeout);
-                callTimeout = null;
-                clearInterval(timerInterval);
-                timerInterval = null;
+                clearAllTimers();
             } else {
                 if (isResting && roundTimerData && typeof roundTimerData.restLeft === 'number') {
                     let restLeft = roundTimerData.restLeft;
@@ -836,8 +858,7 @@
             isWorkoutRunning = false;
             releaseWakeLock();
             speechSynthesis.cancel();
-            clearTimeout(callTimeout);
-            clearInterval(timerInterval);
+            clearAllTimers();
             window.removeEventListener('resize', fitText);
             location.reload();
         }
