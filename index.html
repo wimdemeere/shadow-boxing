@@ -158,7 +158,7 @@
                         <div id="variable-tempo-option" onclick="selectTempoMode('variable')"
                              class="p-4 rounded-2xl border-2 border-zinc-700 bg-zinc-800 cursor-pointer transition-all">
                             <div class="mb-3">
-                                <span class="font-medium">Variable tempo range</span>
+                                <span class="font-medium">Variable tempo</span>
                             </div>
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
@@ -365,7 +365,11 @@
                 numRounds: +$("num-rounds").value,
                 currentMode,
                 isComboMode,
-                maxComboLength: +$("combo-length").value
+                maxComboLength: +$("combo-length").value,
+                tempoMode: tempoMode,
+                fixedTempo: +$("fixed-tempo").value,
+                variableMin: +$("variable-min").value,
+                variableMax: +$("variable-max").value
             };
             localStorage.setItem('shadowBoxingSettings', JSON.stringify(settings));
         }
@@ -379,11 +383,24 @@
                 $("rest-time").value = s.restTime || 60;
                 $("num-rounds").value = s.numRounds || 8;
                 $("combo-length").value = s.maxComboLength || 4;
-                // Old tempo value ignored - new dual tempo system resets every session
+
                 currentMode = s.currentMode || "MMA";
                 isComboMode = s.isComboMode !== undefined ? s.isComboMode : true;
                 setMode(currentMode);
                 setTechniqueMode(isComboMode ? 1 : 0);
+
+                // Restore tempo settings
+                if (s.tempoMode) {
+                    tempoMode = s.tempoMode;
+
+                    // Restore slider values
+                    if (s.fixedTempo) $("fixed-tempo").value = s.fixedTempo;
+                    if (s.variableMin) $("variable-min").value = s.variableMin;
+                    if (s.variableMax) $("variable-max").value = s.variableMax;
+
+                    // Apply visual selection
+                    selectTempoMode(s.tempoMode);
+                }
             } catch (e) {}
             updateSliders();
         }
